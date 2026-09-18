@@ -1,0 +1,9 @@
+# Test Report
+
+Use to decide whether an already-defined object meets defined acceptance criteria; do not use it to select an unproven technology.
+
+Path: scope and pass criteria → environment → execution results → defects/blockers → residual risk → release conclusion.
+
+Required: objective/object/scope; environment/version/data; pass and exit criteria; passed/failed/not-run results; defects/blockers; residual risks; explicit meet/not-meet conclusion. Optional: strategy, metrics, evidence appendix. Exclude execution diary, raw logs, and conclusions without criteria. Keep plan, cases, report, and defect list separate when they are independently maintained.
+
+Check: every result has status and the final conclusion follows the exit criteria.
