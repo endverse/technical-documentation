@@ -14,7 +14,9 @@ param(
 
     [string]$SandboxDirectory = (Join-Path $PSScriptRoot 'sandbox'),
 
-    [string]$CursorAgentPath = (Join-Path $env:LOCALAPPDATA 'cursor-agent\agent.cmd')
+    # Call the PowerShell launcher directly. The .cmd wrapper corrupts multi-line
+    # Windows prompt arguments before they reach the Cursor CLI.
+    [string]$CursorAgentPath = (Join-Path $env:LOCALAPPDATA 'cursor-agent\cursor-agent.ps1')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -72,7 +74,7 @@ try {
     foreach ($case in $cases) {
         for ($trial = 1; $trial -le $Trials; $trial++) {
             $prompt = @"
-Complete the following user request. Apply any installed skill that is relevant to the request.
+Complete the following user request using the installed technical-documentation skill as mandatory instructions. The text below is the complete user request and source material; do not ask for it again.
 
 Task instruction:
 $($case.Task)
@@ -86,7 +88,8 @@ Return only the response or document you would normally deliver to the user. Do 
             $arguments = if ($Runner -eq 'claude') {
                 @('-p', $prompt, '--tools', '', '--permission-mode', 'plan', '--output-format', 'json', '--no-session-persistence')
             } else {
-                @('--trust', '--mode', 'plan', '--workspace', $SandboxDirectory, '-p', $prompt, '--output-format', 'json')
+                # Cursor uses -p/--print as a boolean flag. The prompt must be a positional argument.
+                @('--trust', '--mode', 'plan', '--workspace', $SandboxDirectory, '--print', '--output-format', 'json', $prompt)
             }
             if ($Model) {
                 $arguments += @('--model', $Model)

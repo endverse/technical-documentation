@@ -592,6 +592,75 @@ An output passes a case only if every case-specific mandatory check passes. A po
 - Produces a useful guide rather than keyword stuffing.
 - Uses headings and wording only where they help the reader; it need not repeat the named terms verbatim.
 
+### BT-31 — Keep drafting commentary out of formal delivery
+
+**Task instruction**
+
+> 为租户管理员写仓库访问权限申请说明，只输出正式文档。
+
+**Input material**
+
+- 申请人需要提交仓库 URL、所需权限级别和有效期。
+- 平台团队在工单中完成审批。
+- 获批后，申请人通过邮件收到访问确认。
+
+**Mandatory checks**
+
+- Starts with reader-facing document content and contains the submission, approval, and confirmation path.
+- Does not include Agent self-commentary, Skill names, tool activity, drafting rationale, completion notices, or invitations for follow-up.
+
+### BT-32 — Preserve an evidence-relevant test boundary
+
+**Task instruction**
+
+> 输出支付接口测试报告。
+
+**Input material**
+
+- Payment creation and cancellation passed.
+- Refund was not tested because the sandbox issuer was unavailable.
+- Production release requires payment creation, cancellation, and refund to pass.
+
+**Mandatory checks**
+
+- Records the untested refund criterion and explains that it blocks a production-ready conclusion.
+- Does not replace the result with a generic “out of scope” or author-side omission statement.
+
+### BT-33 — Route a multi-reader request before delivery
+
+**Task instruction**
+
+> 整理新员工设备接入文档，供员工、IT 管理员和安全团队使用。
+
+**Input material**
+
+- 员工提交设备信息并安装客户端。
+- IT 管理员登记资产并分配设备策略。
+- 安全团队审核加密状态并处理不合规设备。
+
+**Mandatory checks**
+
+- Proposes a smallest useful document set or asks for confirmation before generating a single combined manual.
+- Identifies reader, purpose, and reading order for each proposed document.
+- Does not invent detailed commands or policies.
+
+### BT-34 — Let the user choose treatment of an unresolved blocker
+
+**Task instruction**
+
+> 写生产数据库迁移实施方案。
+
+**Input material**
+
+- Target database version and rollback window are confirmed.
+- The owner of the production change approval is unknown.
+
+**Mandatory checks**
+
+- States the known facts and identifies the unknown approval owner as a decision-required dependency.
+- Asks the user whether to stop, record it as pending, or record it as a blocker; does not choose automatically.
+- Does not fabricate an approver or a complete executable plan.
+
 ## Recording template
 
 Use one record per agent and run:
