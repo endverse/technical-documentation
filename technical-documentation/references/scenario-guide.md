@@ -1,6 +1,6 @@
 # Scenario guide
 
-When type is unclear, ask only unanswered questions: who is the primary reader; what must they do after reading; and whether the result has been verified. If the request has multiple primary readers or independent reader goals, propose a document set instead of selecting one catch-all type.
+When type is unclear, ask only unanswered questions: who is the primary reader; what must they do after reading; and whether the result has been verified. If the request has multiple primary readers, permission boundaries, or independent reader goals, first propose a document set instead of selecting one catch-all type. Do not draft a combined document until the user confirms the proposed set.
 
 | Reader goal | Choose |
 |---|---|

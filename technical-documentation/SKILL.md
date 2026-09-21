@@ -16,8 +16,10 @@ Use this skill for technical research, architecture/design, deployment, testing,
 
 Before responding to a documentation request, choose exactly one mode. Do not mix them in one response.
 
+Keep the choice and all internal work internal. Never mention this skill, its files, rules, reading steps, tool use, drafting process, or completion state in user-facing output. Start directly with the requested document, proposal, or necessary question.
+
 - **Clarification or decision request:** Use when the document type, reader, critical facts, or evidence state is missing. State only what is known, what is missing, and the decision the user must make. When an unresolved item could be documented as a blocker, ask whether the user wants to stop, record it as pending, or record it as a blocker; do not choose on the user's behalf.
-- **Document architecture proposal:** Use when the request contains multiple readers, independent goals, or document types, or when the user asks to classify, split, or restructure material. Propose the smallest document set, its readers, purposes, boundaries, and reading order. Obtain confirmation before creating or restructuring a multi-file set.
+- **Document architecture proposal:** Use when the request contains multiple readers, independent goals, or document types, or when the user asks to classify, split, or restructure material. Propose the smallest document set, its readers, purposes, boundaries, and reading order. Do not draft a combined document first. Obtain confirmation before creating or restructuring a multi-file set.
 - **Formal delivery:** Use only when the requested document can be written safely. Output the document itself and nothing about the drafting process.
 
 ## Delivery workflow
@@ -38,4 +40,4 @@ When evaluating or maintaining this skill, read [boundary test suite](references
 - Default to one primary reader and one primary goal. `service-onboarding.md` is the narrow shared-role exception.
 - Do not mix concept, procedure, reference, troubleshooting, incident analysis, and retrospective content in one section.
 - Do not preserve failed experiments, debugging transcripts, or role-irrelevant notes in formal documents unless they are outcome evidence or required in a retrospective.
-- A formal document begins with reader-facing content and ends with reader-facing content. Do not prepend or append a drafting preface, tool output, self-commentary, completion notice, or invitation for further work.
+- Every user-facing response begins with reader-facing content and ends with reader-facing content. Do not prepend or append a drafting preface, Skill or rule reference, tool output, self-commentary, completion notice, or invitation for further work.
