@@ -20,6 +20,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$script:failedTrials = 0
 
 # Resolve caller-supplied relative directories before entering the sandbox.  The
 # runner changes location below, so leaving either path relative would redirect
@@ -118,15 +119,24 @@ Return only the response or document you would normally deliver to the user. Do 
                     $ErrorActionPreference = $previousErrorActionPreference
                 }
                 $result | Set-Content -LiteralPath $outputPath -Encoding utf8
-                if ($exitCode -ne 0) {
+                # Native wrappers may leave LASTEXITCODE unset; only non-zero
+                # codes are trial failures.
+                if ($null -ne $exitCode -and $exitCode -ne 0) {
                     throw "$runnerCommand exited with code $exitCode. See $errorPath"
                 }
                 Write-Host "PASS: $($case.Id), trial $trial -> $outputPath"
             } catch {
-                Write-Error "FAILED: $($case.Id), trial $trial. $($_.Exception.Message)"
+                # Record the failure and continue remaining cases so a full
+                # suite run still produces evidence for every BT case.
+                $script:failedTrials++
+                Write-Host "FAILED: $($case.Id), trial $trial. $($_.Exception.Message)"
             }
         }
     }
 } finally {
     Pop-Location
+}
+
+if ($script:failedTrials -gt 0) {
+    throw "Boundary harness finished with $script:failedTrials failed trial(s)."
 }
