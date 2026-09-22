@@ -1,24 +1,24 @@
 {
   "suite": "boundary",
-  "totalCases": 34,
+  "totalCases": 66,
   "runs": [
     {
       "index": 1,
-      "total": 34,
-      "passed": 34,
+      "total": 66,
+      "passed": 66,
       "failed": 0
     },
     {
       "index": 2,
-      "total": 34,
-      "passed": 34,
+      "total": 66,
+      "passed": 66,
       "failed": 0
     }
   ],
   "command": "powershell -NoProfile -ExecutionPolicy Bypass -File technical-documentation/tests/run-boundary-tests.suite.ps1 -EvidenceDirectory <dir> -Index <n>",
   "evidence": [
-    "artifacts/suite-run-1/suite-result.json",
-    "artifacts/suite-run-2/suite-result.json"
+    "artifacts/expand-run-1/suite-result.json",
+    "artifacts/expand-run-2/suite-result.json"
   ],
   "powerShellVersion": "5.1.19041.6456",
   "workingDirectory": "C:\\Users\\bhyou\\docs\\文档skill\\_worktrees\\td-20260922-100342-technical-documentation-001-test-harness",

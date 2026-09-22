@@ -50,10 +50,46 @@ $cases = @(Get-BoundaryCases -Path $suitePath)
 if ($cases.Count -eq 0) {
     throw "No boundary cases parsed from $suitePath"
 }
+if ($cases.Count -lt 60) {
+    throw "Expanded suite requires >= 60 cases; found $($cases.Count)."
+}
 
 $caseResults = @()
 $passed = 0
 $failed = 0
+
+# --- A2 machine check: scenario-guide routing rows ↔ document-types files ---
+$skillRoot = Split-Path -Parent $testsRoot
+$scenarioPath = Join-Path $skillRoot 'references\scenario-guide.md'
+$typesDir = Join-Path $skillRoot 'references\document-types'
+$scenario = Get-Content -LiteralPath $scenarioPath -Raw -Encoding utf8
+$routeIds = @(
+    [regex]::Matches($scenario, '(?m)^\|[^|\r\n]+\|\s*`([a-z0-9-]+)(?:\.md)?`\s*\|') |
+        ForEach-Object { $_.Groups[1].Value } |
+        Select-Object -Unique
+)
+if ($routeIds.Count -lt 11) {
+    throw "scenario-guide routing table yielded fewer than 11 type ids ($($routeIds.Count))."
+}
+$missingTypes = @()
+foreach ($id in $routeIds) {
+    $typeFile = Join-Path $typesDir "$id.md"
+    if (-not (Test-Path -LiteralPath $typeFile)) {
+        $missingTypes += $id
+    }
+}
+if ($missingTypes.Count -gt 0) {
+    throw "Routing integrity failed; missing document-types files: $($missingTypes -join ', ')"
+}
+$extraTypeFiles = @(
+    Get-ChildItem -LiteralPath $typesDir -Filter '*.md' |
+        Where-Object { $_.BaseName -notin $routeIds } |
+        ForEach-Object { $_.BaseName }
+)
+if ($extraTypeFiles.Count -gt 0) {
+    throw "Routing integrity failed; document-types without routing rows: $($extraTypeFiles -join ', ')"
+}
+Write-Host "PASS routing-integrity (types=$($routeIds.Count))"
 
 # --- Infra case: relative output + stderr capture (harness defect regression) ---
 $infraDir = Join-Path $EvidenceDirectory 'infra-relative'

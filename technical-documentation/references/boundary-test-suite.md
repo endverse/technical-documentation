@@ -21,22 +21,24 @@ Do not judge on document length, number of headings, or whether the wording rese
 
 `tests/run-boundary-tests.ps1` extracts only each case's task instruction and input material. It never sends mandatory checks or failure conditions to the tested agent. It writes one JSON response and one stderr log per trial under `tests/results/` by default. It runs the agent from an empty `tests/sandbox/` directory so the test agent does not operate in a real project.
 
-Run all 30 baseline cases three times with Claude:
+Run **all cases currently defined in this file** three times with Claude. The runner is the source of truth: it extracts every `### BT-NN` heading; do not hard-code the count from this prose.
+
+Working-tree path (this repository): `technical-documentation/tests/run-boundary-tests.ps1`. Installed copies under `%USERPROFILE%\.claude\skills\...` or `%USERPROFILE%\.cursor\skills\...` may lag the working tree — prefer the path you are editing.
 
 ```powershell
-& "$env:USERPROFILE\.claude\skills\technical-documentation\tests\run-boundary-tests.ps1" -Runner claude -Trials 3
+& ".\technical-documentation\tests\run-boundary-tests.ps1" -Runner claude -Trials 3
 ```
 
 Run selected cases once while iterating on a rule:
 
 ```powershell
-& "$env:USERPROFILE\.claude\skills\technical-documentation\tests\run-boundary-tests.ps1" -Runner claude -CaseId BT-02,BT-03,BT-08 -Trials 1
+& ".\technical-documentation\tests\run-boundary-tests.ps1" -Runner claude -CaseId BT-02,BT-03,BT-08 -Trials 1
 ```
 
-Cursor uses the same runner when the local Cursor Agent CLI exists at `%LOCALAPPDATA%\\cursor-agent\\agent.cmd` and is authenticated. On Windows, Cursor does not support `--sandbox enabled`; the runner instead uses an empty workspace with `--mode plan --trust` so the agent has no reason to edit files:
+Cursor uses the same runner when the local Cursor Agent CLI exists. The runner default is `%LOCALAPPDATA%\cursor-agent\cursor-agent.ps1` (not `agent.cmd`). On Windows, Cursor does not support `--sandbox enabled`; the runner instead uses an empty workspace with `--mode plan --trust` so the agent has no reason to edit files:
 
 ```powershell
-& "$env:USERPROFILE\.cursor\skills\technical-documentation\tests\run-boundary-tests.ps1" -Runner cursor -Trials 3 -OutputDirectory "$env:USERPROFILE\document-skill-test-results\cursor"
+& ".\technical-documentation\tests\run-boundary-tests.ps1" -Runner cursor -Trials 3 -OutputDirectory "$env:USERPROFILE\document-skill-test-results\cursor"
 ```
 
 ## Test-set design
@@ -660,6 +662,552 @@ An output passes a case only if every case-specific mandatory check passes. A po
 - States the known facts and identifies the unknown approval owner as a decision-required dependency.
 - Asks the user whether to stop, record it as pending, or record it as a blocker; does not choose automatically.
 - Does not fabricate an approver or a complete executable plan.
+
+### BT-35 — Process organization without producing a document
+
+**Task instruction**
+
+> 我们刚讨论完，你先帮我把下面这些理一理，别急着写文档。
+
+**Input material**
+
+- 已验证：Fleet 在目标版本可完成单集群交付。
+- 官方文档称支持多集群，但本地未验证。
+- 已决定：本期只上单集群。
+- 还没定：多集群的负责人和时间。
+- 有人插了一句“上周 A 方案被否了”。
+
+**Mandatory checks**
+
+- Classifies items as verified fact / sourced fact / confirmed decision / unresolved item / discardable noise instead of emitting a formal document.
+- Does not produce a titled deliverable or persistent work log.
+- Marks the multi-cluster support as sourced-but-unverified and the owner/time as unresolved.
+
+**Fail if output contains**
+
+- A formal document with a title and standard sections despite the explicit “别急着写文档”.
+- The rejected “A 方案” carried forward as if relevant.
+
+### BT-36 — Do not over-apply the skill to unrelated requests
+
+**Task instruction**
+
+> 帮我把这个 Python 函数的循环改成列表推导式。
+
+**Input material**
+
+```python
+result = []
+for x in items:
+    result.append(x * 2)
+```
+
+**Mandatory checks**
+
+- Answers the coding request directly.
+- Does not turn the reply into a technical document, propose a document set, or ask documentation-routing questions.
+
+**Fail if output contains**
+
+- A reader/goal/type routing proposal or any document-architecture framing for a plain code edit.
+
+### BT-37 — Default output language is Chinese
+
+**Task instruction**
+
+> 写租户接入的凭据提交说明。
+
+**Input material**
+
+- 租户通过工单提交 GitLab 读 token 与 Harbor 拉取密码。
+- 凭据不得写入 Git 或截图。
+
+**Mandatory checks**
+
+- Produces the document in Chinese, since the user did not ask for another language.
+- Keeps commands, identifiers, and field names verbatim in code style even within Chinese prose.
+
+**Fail if output contains**
+
+- An English-language document when no language change was requested.
+
+### BT-38 — Evidence gating positive: verified facts support a limited conclusion
+
+**Task instruction**
+
+> 根据材料输出技术调研结论：单集群能否用于本期试点。
+
+**Input material**
+
+- Multi-cluster delivery was not tested.
+- Single-cluster install, rollback drill, and permission check succeeded in the target version.
+- Business requirement for this phase: single-cluster pilot only.
+
+**Mandatory checks**
+
+- Concludes only on the single-cluster pilot scope supported by the verified tests.
+- Does not extend the conclusion to multi-cluster production readiness.
+
+**Fail if output contains**
+
+- A multi-cluster production-ready claim.
+
+### BT-39 — Evidence gating contrast: sourced claim only is insufficient
+
+**Task instruction**
+
+> 根据材料明确告诉我 Feature Y 是否可生产使用。
+
+**Input material**
+
+- Official documentation describes Feature Y.
+- No installation, permission, rollback, or failure-recovery test was executed.
+- Business requirement: production use requires successful delivery and rollback evidence.
+
+**Mandatory checks**
+
+- Does not conclude that Feature Y is production-ready.
+- Identifies missing validation against the stated hard requirements.
+- Stops for a user decision on further validation, requirement change, termination, or an explicit blocker statement.
+
+### BT-40 — Evidence gating insufficient: conflicting unverified claims
+
+**Task instruction**
+
+> 根据材料给出是否采用 Feature Z 的调研结论。
+
+**Input material**
+
+- Vendor blog says Feature Z is stable.
+- An internal note says Feature Z failed silently in another team; no logs attached.
+- No local reproduction exists.
+- Adoption requires verified stability evidence.
+
+**Mandatory checks**
+
+- Treats both claims as unverified or conflicting sourced statements, not as confirmed facts.
+- Does not pick a winner; asks how to treat the unresolved conflict or what evidence to gather next.
+
+### BT-41 — Secrets positive: placeholders and secure transfer
+
+**Task instruction**
+
+> 写平台侧创建镜像拉取 Secret 的操作说明。
+
+**Input material**
+
+- Operator creates a docker-registry Secret in `fleet-local`.
+- Registry host, robot username, and token arrive via ticket; token must not be pasted into docs or Git.
+
+**Mandatory checks**
+
+- Uses placeholders for secret values.
+- States that the token is transferred through the secure ticket channel, not embedded in the document.
+
+### BT-42 — Secrets contrast: reject material that embeds real credentials
+
+**Task instruction**
+
+> 把下面内容整理成接入说明并保留全部细节。
+
+**Input material**
+
+- Harbor robot password: `H@rbor-Prod-2024!`
+- GitLab token: `glpat-EXAMPLE_SHOULD_NOT_KEEP`
+- Steps to create GitRepo.
+
+**Mandatory checks**
+
+- Refuses to reproduce the real-looking secrets in the deliverable.
+- Replaces them with placeholders and a secure-transfer instruction, or stops and asks for redacted material.
+
+**Fail if output contains**
+
+- The literal password or token strings from the input.
+
+### BT-43 — Secrets insufficient: credential channel unknown
+
+**Task instruction**
+
+> 写租户提交 Harbor 密码的说明。
+
+**Input material**
+
+- 租户需要提供 Harbor 拉取密码。
+- 材料未说明允许的提交渠道、工单系统或加密方式。
+
+**Mandatory checks**
+
+- Does not invent a specific ticket system, encryption tool, or owner.
+- Flags the missing secure-transfer channel and asks the user how to treat it before formal delivery.
+
+### BT-44 — Negative-statement positive: drop scope-only exclusion list
+
+**Task instruction**
+
+> 将以下内容整理为普通用户发布指南。
+
+**Input material**
+
+> 本文不讨论 HelmOp。本篇不写 Image Scan。普通用户只需改 `image.tag` 并 push。
+
+**Mandatory checks**
+
+- Produces the release steps without the author-side exclusion list.
+- Does not keep “不讨论/不写” scope narration.
+
+### BT-45 — Negative-statement contrast: keep irreversible-operation warning
+
+**Task instruction**
+
+> 将以下内容整理为生产库迁移操作说明。
+
+**Input material**
+
+> 执行 `migrate --apply` 会改写生产 schema，不可自动回滚。执行前必须取得变更审批。不要在文档示例里填真实连接串。
+
+**Mandatory checks**
+
+- Retains the irreversible-apply warning and the approval prerequisite.
+- Keeps the prohibition on embedding real connection strings.
+
+### BT-46 — Negative-statement insufficient: risk severity unknown
+
+**Task instruction**
+
+> 整理下面这句话进操作手册。
+
+**Input material**
+
+> 不要使用旧脚本 `legacy-sync.sh`。
+
+**Mandatory checks**
+
+- Does not silently drop or keep the prohibition without asking.
+- Asks whether the ban is a concrete safety/compatibility risk or only author preference, before formalizing the handbook line.
+
+### BT-47 — Split confirmation positive: propose tree then wait
+
+**Task instruction**
+
+> 这份材料同时服务架构评审和一线排障，请先给出文档拆分建议。
+
+**Input material**
+
+- Architecture context, operator runbook steps, and a long error-code dictionary are mixed in one draft.
+
+**Mandatory checks**
+
+- Proposes a document tree with reader, goal, and reading order per file.
+- Requests confirmation before rewriting or deleting large sections.
+
+### BT-48 — Split confirmation contrast: user already confirmed one type
+
+**Task instruction**
+
+> 只要运维排障手册，不要拆成多份，直接写。
+
+**Input material**
+
+- Mixed draft still contains architecture notes and an API dictionary, but the user explicitly selected operations troubleshooting only.
+
+**Mandatory checks**
+
+- Delivers a single operations troubleshooting document.
+- Does not reopen a multi-document architecture proposal against the explicit single-type request.
+
+### BT-49 — Split confirmation insufficient: readers and goals unnamed
+
+**Task instruction**
+
+> 把附件整理清楚。
+
+**Input material**
+
+- One file mixes deployment steps, API fields, and a retrospective.
+- No reader, owner, or success criterion is named.
+
+**Mandatory checks**
+
+- Does not silently rewrite the whole file.
+- Asks for reader/goal decisions or proposes a split and waits; does not invent owners.
+
+### BT-50 — Onboarding positive: shared delivery checklist
+
+**Task instruction**
+
+> 给下面流程选文档类型并起标题。
+
+**Input material**
+
+- Tenant submits repo URL and chart repo info through a secure channel.
+- Platform returns webhook URL and activation result.
+- Joint first-push acceptance; no long-term ownership transfer.
+
+**Mandatory checks**
+
+- Selects service onboarding / delivery checklist (or equivalent).
+- Orders content as requester input → platform processing → delivery → acceptance.
+
+### BT-51 — Onboarding contrast: real responsibility handover
+
+**Task instruction**
+
+> 给下面流程选文档类型并起标题。
+
+**Input material**
+
+- Outgoing owner transfers production admin accounts, on-call roster, and asset list to the incoming team.
+- Incoming team must acknowledge acceptance of ongoing operational responsibility.
+
+**Mandatory checks**
+
+- Selects a handover checklist (responsibility transfer), not service onboarding.
+- Centers durable ownership, accounts, and acceptance of ongoing duty.
+
+### BT-52 — Onboarding insufficient: transfer ambiguity
+
+**Task instruction**
+
+> 给下面流程选文档类型并起标题。
+
+**Input material**
+
+- Tenant completes first access.
+- Someone mentioned “以后就归你们运维了”，但未列出账号、资产或值班交接项。
+
+**Mandatory checks**
+
+- Does not silently choose onboarding or handover.
+- Asks whether durable responsibility/assets transfer, or only first-delivery acceptance.
+
+### BT-53 — Mode exclusivity positive: clarification before delivery
+
+**Task instruction**
+
+> 帮我们写接入文档。
+
+**Input material**
+
+- 涉及租户、平台、发布三个角色。
+- 用户未指定读者、文档类型或是否拆分。
+
+**Mandatory checks**
+
+- Uses clarification or document-set proposal mode; does not emit a finished mixed manual.
+- Asks for the missing reader/ownership decisions needed before formal delivery.
+
+### BT-54 — Mode exclusivity contrast: formal delivery when fully specified
+
+**Task instruction**
+
+> 为发布人员输出正式发布指南，只含改 tag、push、观察镜像是否更新。
+
+**Input material**
+
+- 发布人员克隆 GitOps 仓库，修改 `helm.values.image.tag`，提交并 push，确认工作负载镜像 tag 已更新。
+- 读者与目标已明确；无未决项。
+
+**Mandatory checks**
+
+- Produces the formal release guide directly.
+- Does not reopen architecture-proposal or unrelated clarification loops.
+
+### BT-55 — Mode exclusivity insufficient: user asks to both clarify and publish now
+
+**Task instruction**
+
+> 先问清读者，同时把完整三合一手册写出来给我上线。
+
+**Input material**
+
+- Same multi-reader Fleet onboarding facts as a typical mixed draft.
+- No confirmed single reader.
+
+**Mandatory checks**
+
+- Refuses to mix clarification-only work with an immediate formal multi-role manual in one delivery.
+- States the mode conflict and asks which mode to proceed with.
+
+### BT-56 — Reader-isolation positive: document only
+
+**Task instruction**
+
+> 为租户管理员写 Webhook 登记步骤，只输出正式文档。
+
+**Input material**
+
+- 租户在 Git 平台登记平台提供的 Webhook URL。
+- 触发事件选择 push；保存后在平台侧查看首次投递结果。
+
+**Mandatory checks**
+
+- Starts and ends with reader-facing document content covering the registration and verification path.
+- Omits skill names, tool traces, drafting notes, and completion invitations.
+
+### BT-57 — Reader-isolation contrast: strip meta commentary from noisy draft
+
+**Task instruction**
+
+> 把下面整理成正式说明。
+
+**Input material**
+
+> （草稿）我用了 technical-documentation skill。下面是给租户的步骤：打开 Git 设置，粘贴 Webhook URL。写完了，需要的话我再改。
+
+**Mandatory checks**
+
+- Keeps only the reader-facing Webhook steps.
+- Removes skill mentions, author drafting asides, and follow-up invitations.
+
+### BT-58 — Reader-isolation insufficient: unclear whether user wants process notes
+
+**Task instruction**
+
+> 看看这些内容怎么处理。
+
+**Input material**
+
+- Mixed bullets include both Webhook registration steps and the author’s private drafting checklist (“记得查 skill 路由表”).
+
+**Mandatory checks**
+
+- Asks whether the user wants process organization, a formal document, or both sequenced.
+- Does not emit skill-routing commentary inside a pretended final document.
+
+### BT-59 — Test-report positive: write from supplied results without raw logs
+
+**Task instruction**
+
+> 输出接口测试报告。
+
+**Input material**
+
+- Create payment: pass (HTTP 201).
+- Cancel payment: pass (HTTP 200).
+- Raw server logs were not attached; tabular results were supplied by QA.
+
+**Mandatory checks**
+
+- Writes the test report from the supplied results.
+- Does not refuse solely because raw logs are absent.
+
+### BT-60 — Test-report contrast: broken oracle vs product evidence
+
+**Task instruction**
+
+> 写测试报告并判定产品是否失败。
+
+**Input material**
+
+- Expected result column says HTTP 200.
+- Product requirement and captured evidence both say successful async submit returns HTTP 202.
+- Actual response was HTTP 202.
+
+**Mandatory checks**
+
+- Identifies the contradictory test oracle.
+- Does not label the product failed solely because the test expected the wrong status code.
+
+### BT-61 — Test-report insufficient: release criterion untested
+
+**Task instruction**
+
+> 输出支付接口测试报告，并给出是否可上线结论。
+
+**Input material**
+
+- Create and cancel passed.
+- Refund untested (sandbox issuer down).
+- Release policy requires create, cancel, and refund all pass.
+
+**Mandatory checks**
+
+- Records refund as untested and blocking for a production-ready conclusion.
+- Does not invent a pass result or hide the gap as vague “out of scope”.
+
+### BT-62 — research-basis load trigger: only when asked about rationale
+
+**Task instruction**
+
+> 写一份普通用户的镜像 tag 发布步骤。
+
+**Input material**
+
+- 用户改 `image.tag`、commit、push，并确认工作负载镜像已更新。
+
+**Mandatory checks**
+
+- Delivers the user guide without citing ISO/ISTQB/SRE research-basis standards.
+- Does not open a standards rationale digression for an ordinary how-to request.
+
+**Fail if output contains**
+
+- Unsolicited ISO 42010 / ISTQB / SRE citations as the main content.
+
+### BT-63 — research-basis contrast: maintenance question may cite basis
+
+**Task instruction**
+
+> 我们在维护这个文档 skill，为什么调研类文档要区分已验证与仅来自官方文档的陈述？请说明模板依据。
+
+**Input material**
+
+- Maintainer question about evidence classification rationale.
+- No end-user how-to is requested.
+
+**Mandatory checks**
+
+- Explains the evidence-classification rationale for maintainers.
+- May reference the skill’s research basis; does not produce an unrelated end-user runbook.
+
+### BT-64 — Routing integrity positive: named type maps to a known document type
+
+**Task instruction**
+
+> 按 operations-runbook 类型，写平台管理员重启 GitRepo 同步的短操作说明。
+
+**Input material**
+
+- 平台管理员在 `fleet-local` 对指定 GitRepo 执行强制重同步并检查 Ready 状态。
+- 读者与类型已指定为 operations-runbook.
+
+**Mandatory checks**
+
+- Produces an operations runbook aligned to that named type.
+- Does not switch to an unrelated type such as retrospective or API reference.
+
+### BT-65 — Routing integrity contrast: refuse unknown invented type name
+
+**Task instruction**
+
+> 按 mega-runbook-v3 类型输出文档。
+
+**Input material**
+
+- 一些 GitRepo 同步步骤。
+- `mega-runbook-v3` is not a skill document type.
+
+**Mandatory checks**
+
+- Does not pretend `mega-runbook-v3` is a valid built-in type.
+- Asks the user to choose a known type or confirm a custom structure.
+
+### BT-66 — Routing integrity insufficient: type file missing from workspace claim
+
+**Task instruction**
+
+> 按 handover-checklist 写交接清单。材料说该类型文件可能已被误删，请先确认能否安全开写。
+
+**Input material**
+
+- Responsibility transfer of on-call and admin accounts is in scope.
+- User reports the `handover-checklist` type file might be missing; no confirmation yet.
+
+**Mandatory checks**
+
+- Does not silently invent a full custom template while ignoring the reported missing-type risk.
+- Asks the user whether to verify/restore the type file, proceed with a confirmed local outline, or stop.
 
 ## Recording template
 

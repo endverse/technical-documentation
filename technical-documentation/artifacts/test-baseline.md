@@ -1,65 +1,43 @@
-# Boundary harness baseline
+# Boundary harness baseline (expand matrix)
 
 ## Execution context
 
 - PowerShell: `5.1.19041.6456`
-- Caller working directory: `C:\Users\bhyou\docs\文档skill\_worktrees\td-20260922-100342-technical-documentation-001-test-harness`
-- `$PSScriptRoot`: `C:\Users\bhyou\docs\文档skill\_worktrees\td-20260922-100342-technical-documentation-001-test-harness\technical-documentation\tests`
+- Working directory: `C:\Users\bhyou\docs\文档skill\_worktrees\td-20260922-100342-technical-documentation-001-test-harness`
+- `$PSScriptRoot`: `...\technical-documentation\tests`
 - Harness: `technical-documentation/tests/run-boundary-tests.ps1`
-- Suite: `technical-documentation/references/boundary-test-suite.md`
-- Default paths: `...\tests\results`, `...\tests\sandbox`
+- Suite runner: `technical-documentation/tests/run-boundary-tests.suite.ps1`
+- Suite: `technical-documentation/references/boundary-test-suite.md` (BT-01..BT-66)
 
-## Reproduction (pre-fix failure)
+## Expand charter (from audit)
 
-With a successful local stand-in and **relative** `-OutputDirectory` / `-SandboxDirectory`, the pre-fix harness joined output paths after `Push-Location` into the sandbox. Full stderr from that failure:
+High-risk rules requiring positive / contrast / insufficient-evidence coverage:
 
-```text
-FAILED: BT-01, trial 1. Could not find a part of the path 'C:\Users\bhyou\docs\文档skill\_worktrees\td-20260922-100342-technical-documentation-001-test-harness\artifacts\pre-fix-sandbox\artifacts\pre-fix-results\BT-01-trial1-claude-20260922-101707.stderr.txt'.
-```
+| Rule | Positive | Contrast | Insufficient evidence |
+|---|---|---|---|
+| Evidence gating | BT-38 | BT-39 | BT-40 |
+| Secrets | BT-41 | BT-42 | BT-43 |
+| Negative statements | BT-44 | BT-45 | BT-46 |
+| Split confirmation | BT-47 | BT-48 | BT-49 |
+| Onboarding vs handover | BT-50 | BT-51 | BT-52 |
+| Mode exclusivity | BT-53 | BT-54 | BT-55 |
+| Reader isolation | BT-56 | BT-57 | BT-58 |
+| Test-report evidence | BT-59 | BT-60 | BT-61 |
+| research-basis load | BT-62 | BT-63 | (BT-66 covers related missing-type uncertainty) |
+| Routing integrity | BT-64 | BT-65 | BT-66 |
+| Process org / non-apply / language | BT-35 | BT-36 | BT-37 |
 
-Full PowerShell error record:
+Also fixed suite prose that hard-coded “30 cases” (audit A1) and Cursor launcher path drift (A5), and added a machine check that every `scenario-guide.md` routing type has a matching `references/document-types/<id>.md` file and vice versa (A2).
 
-```text
-C:\Users\bhyou\docs\文档skill\_worktrees\td-20260922-100342-technical-documentation-001-test-harness\technical-documentation\tests\run-boundary-tests.ps1 : FAILED: BT-01, trial 1. Could not find a part of the path '...\artifacts\pre-fix-sandbox\artifacts\pre-fix-results\BT-01-trial1-claude-20260922-101707.stderr.txt'.
-    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
-    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,run-boundary-tests.ps1
-```
-
-Separately, under `$ErrorActionPreference = 'Stop'`, native stderr redirected with `2>` still became a terminating error record in Windows PowerShell 5.1, so a successful runner that wrote stderr was treated as a failed trial.
-
-## Root cause
-
-1. Relative output paths were resolved after `Push-Location` into the sandbox.
-2. Native stderr + `Stop` turned diagnostics into terminating errors even when redirected.
-3. `Write-Error` under `Stop` aborted the suite after the first failed trial, so later BT cases produced no evidence.
-4. `$exitCode -ne 0` treated `$null` `LASTEXITCODE` as failure.
-
-## Fix
-
-- Resolve `-OutputDirectory` / `-SandboxDirectory` to absolute paths before entering the sandbox.
-- Temporarily set `$ErrorActionPreference = 'Continue'` around the native invocation.
-- Count failed trials, continue the suite, throw once at the end if any failed.
-- Treat only non-null non-zero exit codes as trial failures.
-
-## Post-fix verification
-
-Captured stderr from a successful relative-path trial (fake runner) begins with:
-
-```text
-fake-claude.cmd : fake runner stderr
-At ...\run-boundary-tests.ps1:115 char:31
-+ ...                   $result = & $runnerCommand @arguments 2> $errorPath
-```
-
-Full suite command (Mandatory-check contract per BT-01..BT-34: checks present, task/input parsed, checks not leaked into agent prompt; plus relative-path/stderr infra check):
+## Post-expand verification
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File technical-documentation\tests\run-boundary-tests.suite.ps1 -EvidenceDirectory <dir> -Index <n>
 ```
 
-Two consecutive full runs: both `total=34 passed=34 failed=0`.
+Two consecutive full runs: both `total=66 passed=66 failed=0`.
 
 ## Known limits
 
-- This gate scores harness readiness for Mandatory-check evaluation (parse + non-leakage + evidence paths), not live-agent document quality against those checks.
-- Live Claude/Cursor matrix remains separate; sample historical BT-01 agent output still fails “no mixed manual” and is out of scope for this harness-only worktree.
+- Suite runner scores Mandatory-check **contracts** (parse + non-leakage into agent prompt) plus routing-file integrity; it does not judge live-agent document quality.
+- Expanding behavioral cases required editing `references/boundary-test-suite.md` (allowed for expand_test_matrix by Controller scope).
