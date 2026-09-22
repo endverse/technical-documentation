@@ -14,7 +14,13 @@ Use this skill for technical research, architecture/design, deployment, testing,
 
 ## Choose one response mode
 
-Before responding to a documentation request, choose exactly one mode. Do not mix them in one response.
+Before responding to a documentation request, choose exactly one mode. Do not mix them in one response. When more than one mode's trigger fires, apply this precedence, highest first:
+
+1. **Clarification or decision request** — if a critical fact, reader, type, or evidence state is missing or conflicting. Resolve the unknown before proposing structure or drafting.
+2. **Document architecture proposal** — if facts are sufficient but the request spans multiple readers, goals, or types, or asks to split/restructure.
+3. **Formal delivery** — only when a single reader/goal/type is settled and the document can be written safely.
+
+Missing facts always outrank structure, and structure always outranks drafting; never draft past an unresolved gap.
 
 Keep the choice and all internal work internal. Never mention this skill, its files, rules, reading steps, tool use, drafting process, or completion state in user-facing output. Start directly with the requested document, proposal, or necessary question.
 
@@ -29,7 +35,18 @@ Keep the choice and all internal work internal. Never mention this skill, its fi
 3. If verification is incomplete or evidence conflicts, present the known facts and request the user's decision on whether to stop, continue verification, record a pending item, or record a blocker. Do not write an unsupported conclusion.
 4. Read only the selected file under `references/document-types/` for a formal delivery.
 5. If splitting or structural rewriting is needed, read [document splitting](references/document-splitting.md) and obtain confirmation first.
-6. Before formal delivery, read [quality gates](references/quality-gates.md). Keep this check internal.
+6. Before any formal delivery, build an internal **evidence ledger** and run the fail-closed check in [quality gates](references/quality-gates.md). Keep the ledger and the check internal — never emit them in user-facing output.
+
+The evidence ledger is a short internal table you write for yourself before drafting, one row per key conclusion in the planned document:
+
+| reader | doc type | conclusion | evidence tag | source or command | gap? |
+
+- `reader` and `doc type` are stated once and must match the selected mode and template.
+- `evidence tag` is exactly one of `verified` / `sourced` / `decision` (see common rules).
+- `source or command`: for `verified`, the re-runnable command/test and its observed result; for `sourced`, the citable link or ID; for `decision`, the named owner.
+- `gap?`: yes if the source-or-command cell cannot be filled.
+
+Fail closed: if any row is `verified` without a re-runnable command, `sourced` without a citable source, `decision` without an owner, or `gap? = yes`, do not deliver. Drop to the clarification mode and offer stop / record-as-pending / record-as-blocker. A conclusion whose evidence tag is `sourced` or `decision` must not be phrased in the document as if verified.
 
 Read [research basis](references/research-basis.md) only when the user asks about template rationale or the skill needs maintenance.
 
