@@ -21,9 +21,11 @@ Do not judge on document length, number of headings, or whether the wording rese
 
 `tests/run-boundary-tests.ps1` extracts only each case's task instruction and input material. It never sends mandatory checks or failure conditions to the tested agent. It writes one JSON response and one stderr log per trial under `tests/results/` by default. It runs the agent from an empty `tests/sandbox/` directory so the test agent does not operate in a real project.
 
-Run **all cases currently defined in this file** three times with Claude. The runner is the source of truth: it extracts every `### BT-NN` heading; do not hard-code the count from this prose.
+The runner is the authoritative source of the case count: it discovers every `### BT-NN` block in this file at run time, so a run always covers all cases defined here (currently BT-01 through BT-66). Do not rely on a hard-coded count in prose; adding a case with a `Task instruction` and `Input material` block is enough for the runner to include it.
 
 Working-tree path (this repository): `technical-documentation/tests/run-boundary-tests.ps1`. Installed copies under `%USERPROFILE%\.claude\skills\...` or `%USERPROFILE%\.cursor\skills\...` may lag the working tree — prefer the path you are editing.
+
+Run all baseline cases three times with Claude:
 
 ```powershell
 & ".\technical-documentation\tests\run-boundary-tests.ps1" -Runner claude -Trials 3
@@ -35,7 +37,9 @@ Run selected cases once while iterating on a rule:
 & ".\technical-documentation\tests\run-boundary-tests.ps1" -Runner claude -CaseId BT-02,BT-03,BT-08 -Trials 1
 ```
 
-Cursor uses the same runner when the local Cursor Agent CLI exists. The runner default is `%LOCALAPPDATA%\cursor-agent\cursor-agent.ps1` (not `agent.cmd`). On Windows, Cursor does not support `--sandbox enabled`; the runner instead uses an empty workspace with `--mode plan --trust` so the agent has no reason to edit files:
+The paths above assume an installed copy under `.claude\skills\...` or `.cursor\skills\...`. When running against the working tree instead, call the runner at its in-tree location (`technical-documentation\tests\run-boundary-tests.ps1`); it resolves the suite relative to its own folder, so no install is required.
+
+Cursor uses the same runner when the local Cursor Agent CLI exists at the runner's default `CursorAgentPath` (`%LOCALAPPDATA%\\cursor-agent\\cursor-agent.ps1`, the PowerShell launcher — the `.cmd` wrapper corrupts multi-line prompts) and is authenticated. Override with `-CursorAgentPath` if your install differs. On Windows, Cursor does not support `--sandbox enabled`; the runner instead uses an empty workspace with `--mode plan --trust` so the agent has no reason to edit files:
 
 ```powershell
 & ".\technical-documentation\tests\run-boundary-tests.ps1" -Runner cursor -Trials 3 -OutputDirectory "$env:USERPROFILE\document-skill-test-results\cursor"

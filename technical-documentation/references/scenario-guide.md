@@ -17,3 +17,7 @@ When type is unclear, ask only unanswered questions: who is the primary reader; 
 | Learn and track improvement after a project or incident | `project-retrospective.md` |
 
 If multiple artifacts are needed, recommend the smallest set and wait for confirmation. If a critical fact or evidence decision is missing, ask whether the user wants to stop, record it as pending, or record it as a blocker.
+
+## Routing integrity invariant
+
+Each **Choose** entry above names a file that must exist in `references/document-types/`, and every file there must have exactly one row. The mapping is 1:1 — 11 rows, 11 files: `technical-research`, `architecture-design`, `feature-overview`, `user-guide`, `operations-runbook`, `deployment-plan`, `issue-analysis`, `test-report`, `handover-checklist`, `service-onboarding`, `project-retrospective`. When adding, renaming, or removing a document type, update the row and the file together and confirm the counts still match; a broken row or an orphan file is a maintenance defect.
