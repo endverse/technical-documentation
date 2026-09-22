@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "harness": "technical-documentation/tests/run-boundary-tests.ps1",
+  "proof": "technical-documentation/tests/run-boundary-tests.regression.ps1",
+  "powerShellVersion": "5.1.19041.6456",
+  "workingDirectory": "C:\\Users\\bhyou\\docs\\文档skill\\_worktrees\\td-20260922-100342-technical-documentation-001-test-harness",
+  "pSScriptRoot": "C:\\Users\\bhyou\\docs\\文档skill\\_worktrees\\td-20260922-100342-technical-documentation-001-test-harness\\technical-documentation\\tests",
+  "runs": [
+    {
+      "id": "run-3",
+      "exitCode": 0,
+      "responsePath": "artifacts/run-3/output/BT-01-trial1-cursor-20260922-101944.json",
+      "stderrPath": "artifacts/run-3/output/BT-01-trial1-cursor-20260922-101944.stderr.txt",
+      "stderrCaptured": true
+    },
+    {
+      "id": "run-4",
+      "exitCode": 0,
+      "responsePath": "artifacts/run-4/output/BT-01-trial1-cursor-20260922-101945.json",
+      "stderrPath": "artifacts/run-4/output/BT-01-trial1-cursor-20260922-101945.stderr.txt",
+      "stderrCaptured": true
+    }
+  ],
+  "assertions": {
+    "relativeOutputAnchoredAtCaller": true,
+    "sandboxDoesNotContainNestedOutput": true,
+    "successfulRunnerStderrDoesNotFailTrial": true
+  }
+}

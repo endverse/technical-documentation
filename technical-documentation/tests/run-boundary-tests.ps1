@@ -21,6 +21,12 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# Resolve caller-supplied relative directories before entering the sandbox.  The
+# runner changes location below, so leaving either path relative would redirect
+# response and stderr files beneath the sandbox instead of the caller's target.
+$OutputDirectory = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputDirectory)
+$SandboxDirectory = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($SandboxDirectory)
+
 $skillRoot = Split-Path -Parent $PSScriptRoot
 $suitePath = Join-Path $skillRoot 'references\boundary-test-suite.md'
 if (-not (Test-Path -LiteralPath $suitePath)) {
@@ -100,8 +106,17 @@ Return only the response or document you would normally deliver to the user. Do 
             $errorPath = Join-Path $OutputDirectory "$($case.Id)-trial$trial-$Runner-$stamp.stderr.txt"
 
             try {
-                $result = & $runnerCommand @arguments 2> $errorPath
-                $exitCode = $LASTEXITCODE
+                # Windows PowerShell turns native stderr into an error record
+                # under Stop even when it is redirected.  Capture diagnostics
+                # without treating a successful runner as a failed trial.
+                $previousErrorActionPreference = $ErrorActionPreference
+                try {
+                    $ErrorActionPreference = 'Continue'
+                    $result = & $runnerCommand @arguments 2> $errorPath
+                    $exitCode = $LASTEXITCODE
+                } finally {
+                    $ErrorActionPreference = $previousErrorActionPreference
+                }
                 $result | Set-Content -LiteralPath $outputPath -Encoding utf8
                 if ($exitCode -ne 0) {
                     throw "$runnerCommand exited with code $exitCode. See $errorPath"
