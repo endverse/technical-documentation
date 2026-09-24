@@ -22,6 +22,15 @@ param(
 $ErrorActionPreference = 'Stop'
 $script:failedTrials = 0
 
+# Capture native claude stdout as UTF-8 so CJK-heavy responses are not mangled
+# through the console's legacy codepage.
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+
+# Neutralize any ambient response-style plugin (e.g. caveman) so the test
+# measures the skill's behavior, not the operator's console persona.
+$env:CAVEMAN_DEFAULT_MODE = 'off'
+
 # Resolve caller-supplied relative directories before entering the sandbox.  The
 # runner changes location below, so leaving either path relative would redirect
 # response and stderr files beneath the sandbox instead of the caller's target.
@@ -93,7 +102,10 @@ Return only the response or document you would normally deliver to the user. Do 
 "@
 
             $arguments = if ($Runner -eq 'claude') {
-                @('-p', $prompt, '--tools', '', '--permission-mode', 'plan', '--output-format', 'json', '--no-session-persistence')
+                # --allowedTools "Read Glob Grep" (not --tools '') so the skill can
+                # read its own references/ files; --tools '' silently blocks that
+                # and the skill never fully loads.
+                @('-p', $prompt, '--allowedTools', 'Read Glob Grep', '--permission-mode', 'plan', '--output-format', 'json', '--no-session-persistence')
             } else {
                 # Cursor uses -p/--print as a boolean flag. The prompt must be a positional argument.
                 @('--trust', '--mode', 'plan', '--workspace', $SandboxDirectory, '--print', '--output-format', 'json', $prompt)
