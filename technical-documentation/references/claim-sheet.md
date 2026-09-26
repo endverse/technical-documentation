@@ -19,6 +19,7 @@ Number type is exactly one of: 设计常量, 判定结果, 测量结果, 实验�
 Rules:
 
 - Rewrite each claim as a standalone proposition. Do not quote the user's colloquial wording.
+- 已验证事实 needs a re-runnable command, test, or direct observation and its result. 资料事实 needs a citable link or ID. 已确认决定 needs a named owner. If that source cannot be filled, the status is 未决事项.
 - Mark ports, sample IDs, temporary configuration, failed commands, and superseded measurements as 实验夹具 and 应丢弃的过程噪音, unless that failure itself proves a hard requirement is unmet. In that case keep the outcome as 已验证事实 and type the number 判定结果.
 - A sourced description is 资料事实, not a measured result.
 - A user or project choice is 已确认决定, not a technical necessity.

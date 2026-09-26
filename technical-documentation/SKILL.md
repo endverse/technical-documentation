@@ -25,7 +25,13 @@ Reading order and connective sentences are fixed by the selected document type a
 
 ## Choose one response mode
 
-Before responding to a documentation request, choose exactly one mode. Do not mix them in one response.
+Before responding to a documentation request, choose exactly one mode. Do not mix them in one response. When more than one mode's trigger fires, apply this precedence, highest first:
+
+1. **Clarification or decision request** — if a critical fact, reader, type, or evidence state is missing or conflicting. Resolve the unknown before proposing structure or drafting.
+2. **Document architecture proposal** — if facts are sufficient but the request spans multiple readers, goals, or types, or asks to split/restructure.
+3. **Formal delivery** — only when a single reader/goal/type is settled and the document can be written safely.
+
+Missing facts always outrank structure, and structure always outranks drafting; never draft past an unresolved gap.
 
 Keep the choice and all internal work internal. Never mention this skill, its files, rules, reading steps, tool use, drafting process, or completion state in user-facing output. Start directly with the claim sheet, the requested document, a proposal, or the necessary question.
 
@@ -36,9 +42,10 @@ Keep the choice and all internal work internal. Never mention this skill, its fi
 ## Delivery workflow
 
 1. On a publish request, start at pipeline step 1. Do not write prose before the user confirms the sheet.
-2. If verification is incomplete or evidence conflicts, keep that item unresolved on the sheet and ask whether to stop, continue verification, record it as pending, or record it as a blocker. Do not write an unsupported conclusion.
-3. If splitting or structural rewriting is needed, read [document splitting](references/document-splitting.md) during the skeleton step and obtain confirmation first.
-4. Run the reader revision before delivery. Keep that check internal.
+2. While building the sheet, keep an internal evidence ledger and run the fail-closed check in [quality gates](references/quality-gates.md). The ledger is not user-facing. One row per key conclusion: reader, doc type, conclusion, evidence tag (`verified` / `sourced` / `decision`), source or command, and gap. `verified` needs a re-runnable command, test, or direct observation and its result; `sourced` needs a citable link or ID; `decision` needs a named owner. If that cell cannot be filled, the claim stays unresolved on the sheet. Do not deliver while any row is `gap`, and do not phrase a `sourced` or `decision` conclusion as verified.
+3. If verification is incomplete or evidence conflicts, keep that item unresolved on the sheet and ask whether to stop, continue verification, record it as pending, or record it as a blocker. Do not write an unsupported conclusion.
+4. If splitting or structural rewriting is needed, read [document splitting](references/document-splitting.md) during the skeleton step and obtain confirmation first.
+5. Run the reader revision before delivery. Keep that check internal.
 
 Read [research basis](references/research-basis.md) only when the user asks about template rationale or the skill needs maintenance.
 
