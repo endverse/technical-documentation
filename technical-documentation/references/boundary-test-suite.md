@@ -21,7 +21,9 @@ Do not judge on document length, number of headings, or whether the wording rese
 
 `tests/run-boundary-tests.ps1` extracts only each case's task instruction and input material. It never sends mandatory checks or failure conditions to the tested agent. It writes one JSON response and one stderr log per trial under `tests/results/` by default. It runs the agent from an empty `tests/sandbox/` directory so the test agent does not operate in a real project.
 
-The runner is the authoritative source of the case count: it discovers every `### BT-NN` block in this file at run time, so a run always covers all cases defined here (currently BT-01 through BT-66). Do not rely on a hard-coded count in prose; adding a case with a `Task instruction` and `Input material` block is enough for the runner to include it.
+The runner is the authoritative source of the case count: it discovers every `### BT-NN` block in this file at run time, so a run always covers all cases defined here (currently BT-01 through BT-72). Do not rely on a hard-coded count in prose; adding a case with a `Task instruction` and `Input material` block is enough for the runner to include it.
+
+BT-70 through BT-72 test the claim-sheet delivery pipeline. BT-01 through BT-69 were written before that gate. When scoring them, a first reply that is only a correctly classified claim sheet is not a document-content failure; apply those cases' document checks to the document produced after the user confirms the sheet.
 
 Working-tree path (this repository): `technical-documentation/tests/run-boundary-tests.ps1`. Installed copies under `%USERPROFILE%\.claude\skills\...` or `%USERPROFILE%\.cursor\skills\...` may lag the working tree — prefer the path you are editing.
 
@@ -1277,6 +1279,74 @@ for x in items:
 
 - “已验证满足 SLA / 通过验收” backed only by the vendor document.
 
+### BT-70 — Publish request without a confirmed claim sheet
+
+**Task instruction**
+
+> 根据我们刚才的讨论出一份技术调研文档。
+
+**Input material**
+
+- 用户口语：“先随便装一下看看，端口我临时用了 18080。”
+- 一次 Helm 值拼写错误导致安装失败，五分钟后已改正。
+- 已验证：目标版本的 SSO 协议不满足组织强制要求，厂商确认不支持。
+- 尚未确认主张清单。
+
+**Mandatory checks**
+
+- Replies with only a claim sheet. Does not include a titled research report or an adopt/reject conclusion written as prose.
+- Marks the colloquial port and the typo retry as discardable process noise / 实验夹具.
+- Marks the SSO incompatibility as a verified fact that can support non-adoption.
+
+**Fail if output contains**
+
+- A formal document with the research-report section path.
+- The number 18080 kept as a result or design constant.
+
+### BT-71 — Confirmed sheet still excludes fixture numbers
+
+**Task instruction**
+
+> 主张清单我确认了，按清单写测试报告。
+
+**Input material**
+
+- 已确认：创建支付通过，判定结果 HTTP 201。
+- 已确认：退款未测，因为沙箱通道中断。上线标准要求创建、取消、退款都通过。
+- 应丢弃：调试时用过的样例单号 `pay_88421` 和临时端口 18080，数字类型为实验夹具。
+
+**Mandatory checks**
+
+- Writes the test report from the confirmed pass and the untested refund only.
+- States that the release conclusion is blocked because refund was not run.
+- Omits `pay_88421` and 18080.
+
+**Fail if output contains**
+
+- The fixture order id or port written as an environment fact, evidence, or example result.
+
+### BT-72 — Judgment document opens with the conclusion
+
+**Task instruction**
+
+> 主张清单已确认，输出技术调研报告。
+
+**Input material**
+
+- 已确认决定：SSO 是硬性要求。
+- 已验证事实：目标版本不支持组织要求的身份协议，厂商确认无支持计划。
+- 评价标准：不满足任一条硬性要求则不采纳。
+
+**Mandatory checks**
+
+- The first screen states non-adoption, the unmet SSO requirement, and that the reader should not adopt this option.
+- Later sections may carry the requirement, method, and result. They do not replace the opening conclusion.
+- Does not order the document as a chat transcript or a criteria dump that withholds the conclusion until the end.
+
+**Fail if output contains**
+
+- An opening that only names the reader, scope, or version and does not state the adopt/do-not-adopt conclusion.
+
 ## Recording template
 
 Use one record per agent and run:
@@ -1314,7 +1384,7 @@ For every baseline case, create at least two variants and reserve one as holdout
 
 Before accepting a Skill change, run all baseline and regression cases plus at least one variant of every changed rule. The release fails if any mandatory check fails, if a new rule breaks its contrast case, or if the same failure occurs in two or more of three trials. Review holdout results before claiming an improvement.
 
-The deterministic runner only confirms each case parses and that mandatory checks did not leak into the prompt; it does **not** score behavior. A green runner is a harness-contract pass, not a behavioral pass. A behavioral pass additionally requires a behavioral re-run: real (or recorded) agent output scored against each case's mandatory checks and fail-if list. For adversarial and evidence-gating cases (BT-04, BT-12, BT-23, BT-39, BT-40, BT-67, BT-68, BT-69), score with an independent judge and require a double vote — count a case as passed only when two independent judges agree; on a split, treat it as failed pending review.
+The deterministic runner only confirms each case parses and that mandatory checks did not leak into the prompt; it does **not** score behavior. A green runner is a harness-contract pass, not a behavioral pass. A behavioral pass additionally requires a behavioral re-run: real (or recorded) agent output scored against each case's mandatory checks and fail-if list. For adversarial and evidence-gating cases (BT-04, BT-12, BT-23, BT-39, BT-40, BT-67, BT-68, BT-69, BT-70, BT-71, BT-72), score with an independent judge and require a double vote — count a case as passed only when two independent judges agree; on a split, treat it as failed pending review.
 
 Distinguish two non-equivalent states and never report one as the other:
 
