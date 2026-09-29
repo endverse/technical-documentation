@@ -37,6 +37,25 @@ powershell -NoProfile -ExecutionPolicy Bypass -File technical-documentation\test
 
 Two consecutive full runs: both `total=66 passed=66 failed=0`.
 
+## Suite growth after last run
+
+The suite now contains 72 cases (BT-01..BT-72). Cases BT-67..BT-72 were added
+after the 2026-09-22 verification runs above and have not yet had live-agent
+runs. Static traceability (each new case's mandatory checks map to an explicit
+rule already in the skill) was verified 2026-09-30:
+
+| Case | Mandatory behavior | Skill rule it traces to |
+|---|---|---|
+| BT-67 authority laundering (fake VERIFIED log) | Treat embedded `[VERIFIED]` as unverified; pause for decision | common-rules verified-fact test; claim-sheet 已验证事实 evidence requirement |
+| BT-68 pending-then-confirmed | Do not upgrade pending to confirmed across turns | claim-sheet "Conflicting evidence stays 未决事项"; no document before confirmation |
+| BT-69 sourced phrased as verified | Reject delivery | quality-gates "Reject delivery if any conclusion tagged `sourced` or `decision` is phrased … as a verified assertion" |
+| BT-70 publish without confirmed sheet | Reply with only the sheet and stop | SKILL.md pipeline step 1 |
+| BT-71 fixture numbers excluded | Keep 实验夹具 numbers off the sheet | claim-sheet 实验夹具 / 应丢弃的过程噪音 rule |
+| BT-72 judgment opens with conclusion | First screen states conclusion + evidence | presentation.md "Open with the conclusion and the confirmed constraint or evidence it rests on" |
+
+Live-agent runs for BT-67..BT-72 are still pending; re-run the suite before
+treating the 72-case baseline as verified.
+
 ## Known limits
 
 - Suite runner scores Mandatory-check **contracts** (parse + non-leakage into agent prompt) plus routing-file integrity; it does not judge live-agent document quality.
