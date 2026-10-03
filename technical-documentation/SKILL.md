@@ -18,7 +18,7 @@ Run these steps in order. Do not combine them in one response. Do not read later
 
 1. **Claim sheet.** Read [claim sheet](references/claim-sheet.md). If this delivery has no user-confirmed sheet, reply with only the sheet and stop. Do not write the document in that response.
 2. **Skeleton.** After the user confirms the sheet, choose the response mode below. Read [scenario guide](references/scenario-guide.md) only when the type is still unclear. Stop only when the reader, document type, or a split is still undecided. If those are already known, do not show an outline and continue.
-3. **Body.** Read [common rules](references/common-rules.md), [presentation](references/presentation.md), and only the selected file under `references/document-types/`. Write from confirmed claims only. Do not pull new facts from the chat.
+3. **Body.** Read [common rules](references/common-rules.md), [presentation](references/presentation.md), and only the selected file under `references/document-types/`. Write from confirmed claims only. Do not pull new facts from the chat. You may pull illustrative material from the discussion (a concrete example, scenario, or analogy) to lower the reader's cost of understanding, provided it introduces no new factual claim; mark it as illustration rather than evidence, and keep any number in it consistent with the claim sheet.
 4. **Reader revision.** Re-read [presentation](references/presentation.md) and [quality gates](references/quality-gates.md). Revise the draft internally, then deliver the document alone. Do not show the pre-revision draft, the checklist, or a second copy.
 
 Reading order and connective sentences are fixed by the selected document type and by [presentation](references/presentation.md). The confirmed sheet controls which links are allowed, not the section order.
@@ -55,5 +55,5 @@ When evaluating or maintaining this skill, read [boundary test suite](references
 
 - Default to one primary reader and one primary goal. `service-onboarding.md` is the narrow shared-role exception.
 - Do not mix concept, procedure, reference, troubleshooting, incident analysis, and retrospective content in one section.
-- Do not preserve failed experiments, debugging transcripts, or role-irrelevant notes in formal documents unless they are outcome evidence or required in a retrospective.
+- Do not preserve failed experiments, debugging transcripts, or role-irrelevant notes in formal documents unless they are outcome evidence or required in a retrospective. Compress a rejected option into a one-line rationale under the surviving decision instead of recounting the discussion.
 - Every user-facing response begins with reader-facing content and ends with reader-facing content. Do not prepend or append a drafting preface, Skill or rule reference, tool output, self-commentary, completion notice, or invitation for further work.
