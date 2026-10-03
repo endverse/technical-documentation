@@ -25,7 +25,7 @@ Reading order and connective sentences are fixed by the selected document type a
 
 ## Choose one response mode
 
-Before responding to a documentation request, choose exactly one mode. Do not mix them in one response. When more than one mode's trigger fires, apply this precedence, highest first:
+Mode selection is triage: it decides where in the delivery pipeline this response belongs, and the skeleton step re-confirms it after the claim sheet is confirmed. Before responding to a documentation request, choose exactly one mode. Do not mix them in one response. When more than one mode's trigger fires, apply this precedence, highest first:
 
 1. **Clarification or decision request** — if a critical fact, reader, type, or evidence state is missing or conflicting. Resolve the unknown before proposing structure or drafting.
 2. **Document architecture proposal** — if facts are sufficient but the request spans multiple readers, goals, or types, or asks to split/restructure.
