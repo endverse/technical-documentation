@@ -17,7 +17,7 @@ Use this skill for technical research, architecture/design, deployment, testing,
 Run these steps in order. Do not combine them in one response. Do not read later-step files early.
 
 1. **Claim sheet.** Read [claim sheet](references/claim-sheet.md). If this delivery has no user-confirmed sheet, reply with only the sheet and stop. Do not write the document in that response.
-2. **Skeleton.** After the user confirms the sheet, choose the response mode below. Read [scenario guide](references/scenario-guide.md) only when the type is still unclear. Stop only when the reader, document type, or a split is still undecided. If those are already known, do not show an outline and continue.
+2. **Skeleton.** After the user confirms the sheet, re-confirm the response mode below (the sheet may have resolved earlier unknowns). Read [scenario guide](references/scenario-guide.md) only when the type is still unclear. If the reader, document type, or a needed split is still undecided, stop and resolve it before drafting. If all three are decided, continue to the body without showing an outline.
 3. **Body.** Read [common rules](references/common-rules.md), [presentation](references/presentation.md), and only the selected file under `references/document-types/`. Write from confirmed claims only. Do not pull new facts from the chat.
 4. **Reader revision.** Re-read [presentation](references/presentation.md) and [quality gates](references/quality-gates.md). Revise the draft internally, then deliver the document alone. Do not show the pre-revision draft, the checklist, or a second copy.
 
@@ -25,7 +25,7 @@ Reading order and connective sentences are fixed by the selected document type a
 
 ## Choose one response mode
 
-Before responding to a documentation request, choose exactly one mode. Do not mix them in one response. When more than one mode's trigger fires, apply this precedence, highest first:
+Mode selection is triage: it decides where in the delivery pipeline this response belongs, and the skeleton step re-confirms it after the claim sheet is confirmed. Before responding to a documentation request, choose exactly one mode. Do not mix them in one response. When more than one mode's trigger fires, apply this precedence, highest first:
 
 1. **Clarification or decision request** — if a critical fact, reader, type, or evidence state is missing or conflicting. Resolve the unknown before proposing structure or drafting.
 2. **Document architecture proposal** — if facts are sufficient but the request spans multiple readers, goals, or types, or asks to split/restructure.

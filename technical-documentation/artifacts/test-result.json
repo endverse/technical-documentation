@@ -22,5 +22,7 @@
   ],
   "powerShellVersion": "5.1.19041.6456",
   "workingDirectory": "C:\\Users\\bhyou\\docs\\文档skill\\_worktrees\\td-20260922-100342-technical-documentation-001-test-harness",
-  "pSScriptRoot": "C:\\Users\\bhyou\\docs\\文档skill\\_worktrees\\td-20260922-100342-technical-documentation-001-test-harness\\technical-documentation\\tests"
+  "pSScriptRoot": "C:\\Users\\bhyou\\docs\\文档skill\\_worktrees\\td-20260922-100342-technical-documentation-001-test-harness\\technical-documentation\\tests",
+  "verifiedThrough": "BT-66",
+  "note": "Recorded runs cover BT-01..BT-66 only. BT-67..BT-72 were added after the 2026-09-22 runs; static rule traceability verified 2026-09-30, live-agent runs pending."
 }
