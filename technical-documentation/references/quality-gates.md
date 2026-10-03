@@ -10,7 +10,7 @@ Fail and return to the claim sheet when any of these are true: a claim was not c
 
 ## Presentation, during reader revision
 
-Fail and revise before delivery when any of these are true: a judgment document's first screen does not state the conclusion, the evidence it rests on, and what the reader should believe or do next; a section has no opening judgment before its table; a procedure step lacks a prerequisite, action, or observable result; the order follows the chat instead of the document type; author-side drafting rationale, document-history comparison, or a list of intentionally omitted content remains.
+Fail and revise before delivery when any of these are true: a judgment document's first screen does not state the problem it answers, the conclusion, the evidence it rests on, and what the reader should believe or do next; a judgment document's section does not state its judgment and supporting claim within the first screen; a procedure step lacks a prerequisite, action, or observable result; the order follows the chat instead of the document type; author-side drafting rationale, document-history comparison, or a list of intentionally omitted content remains (reader navigation sentences are not author-side rationale); an illustrative example is presented as a verified fact.
 
 Also fail: Agent self-commentary or tool output; a drafting preface or completion note; invented facts, commands, roles, paths, or approval routes; an unsupported conclusion; a mixed-audience or mixed-purpose monolith that lacks a usable reading path.
 

@@ -1339,13 +1339,60 @@ for x in items:
 
 **Mandatory checks**
 
-- The first screen states non-adoption, the unmet SSO requirement, and that the reader should not adopt this option.
+- The first screen states the question the document answers, the non-adoption conclusion, the unmet SSO requirement, and that the reader should not adopt this option.
 - Later sections may carry the requirement, method, and result. They do not replace the opening conclusion.
 - Does not order the document as a chat transcript or a criteria dump that withholds the conclusion until the end.
 
 **Fail if output contains**
 
 - An opening that only names the reader, scope, or version and does not state the adopt/do-not-adopt conclusion.
+
+### BT-73 — Rejected option compressed to one-line rationale, navigation kept
+
+**Task instruction**
+
+> 主张清单已确认，输出架构设计文档。
+
+**Input material**
+
+- 已确认决定：采用方案 B（异步队列削峰）。
+- 已验证事实：方案 B 压测支撑 5k QPS，p99 < 200ms（压测命令与结果已记录）。
+- 已验证事实：方案 A（同步直写）压测 p99 超过 2s，不满足 500ms 的硬性要求。
+- 讨论过程无序：先聊监控，后聊方案 A，又回到监控与方案 B。
+
+**Mandatory checks**
+
+- Orders sections by the architecture type order, not the chat order.
+- Compresses the rejection of A into a one-line rationale under the surviving decision (rejected A because p99 exceeded 2s in the load test against the 500ms requirement); does not recount the discussion or reproduce the monitoring digression.
+- Keeps a navigation sentence that helps the reader locate themselves in the document (e.g. what the following sections cover).
+
+**Fail if output contains**
+
+- A narrative recount of the discussion or its chronological order.
+- The rejected Option A with full reasoning reproduced, or no rationale at all for why A lost.
+
+### BT-74 — Illustrative example marked as illustration, numbers consistent
+
+**Task instruction**
+
+> 主张清单已确认，输出功能说明。
+
+**Input material**
+
+- 已确认：功能 X 面向租户管理员，用于批量导入用户。
+- 已验证事实：1000 用户导入耗时 42 秒（压测命令与结果已记录）。
+- 资料事实：某租户一次导入 800 用户（工单 #1234）。
+
+**Mandatory checks**
+
+- May use the 800-user ticket case as an illustrative scenario, clearly marked as illustration rather than evidence.
+- Does not upgrade the sourced ticket case to a verified assertion.
+- All numbers stay consistent with the claim sheet.
+
+**Fail if output contains**
+
+- The ticket case phrased as a verified measurement.
+- New measurements invented for the example.
 
 ## Recording template
 
